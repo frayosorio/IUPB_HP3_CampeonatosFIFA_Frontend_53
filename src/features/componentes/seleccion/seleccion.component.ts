@@ -5,6 +5,8 @@ import { NgFor } from '@angular/common';
 import { ColumnMode, NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { Seleccion } from '../../../shared/entidades/seleccion';
 import { SeleccionService } from '../../../core/servicios/seleccion.service';
+import { MatDialog } from '@angular/material/dialog';
+import { SeleccionEditarComponent } from '../seleccion-editar/seleccion-editar.component';
 
 @Component({
   selector: 'app-seleccion',
@@ -30,7 +32,9 @@ export class SeleccionComponent implements OnInit {
   ];
   public modoColumna = ColumnMode;
 
-  constructor(private servicioSeleccion: SeleccionService) {
+  constructor(private servicioSeleccion: SeleccionService,
+    private dialogService: MatDialog
+  ) {
   }
   ngOnInit(): void {
     this.listar();
@@ -49,7 +53,61 @@ export class SeleccionComponent implements OnInit {
   }
 
   public buscar() {
-
+    if (this.textoBusqueda.length == 0) {
+      this.listar();
+    }
+    else {
+      this.servicioSeleccion.buscar(this.opcionBusqueda, this.textoBusqueda).subscribe(
+        {
+          next: response => {
+            this.selecciones = response;
+          },
+          error: error => {
+            window.alert(error);
+          }
+        }
+      );
+    }
   }
+
+  public agregar() {
+    const ventanaModal = this.dialogService.open(SeleccionEditarComponent,
+      {
+        width: "500px",
+        height: "300px",
+        data: {
+          encabezado: "Agregando nueva Selección de Fútbol",
+          seleccion: {
+            id: 0,
+            nombre: "",
+            entidad: ""
+          }
+        },
+        disableClose: true
+      });
+
+    ventanaModal.afterClosed().subscribe({
+      next: datos => {
+        if (datos) {
+          this.servicioSeleccion.agregar(datos.seleccion).subscribe(
+            {
+              next: response => {
+
+              }
+              ,
+              error: error => {
+                window.alert(error);
+              }
+            }
+          );
+        }
+      },
+      error: error => {
+        window.alert(error);
+      }
+    });
+  }
+
+
 
 }
