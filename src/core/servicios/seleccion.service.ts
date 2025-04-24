@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Seleccion } from '../../shared/entidades/Seleccion';
 import { environment } from '../../environments/environment';
-import { Seleccion } from '../../shared/entidades/seleccion';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +10,6 @@ import { Seleccion } from '../../shared/entidades/seleccion';
 export class SeleccionService {
 
   private url: string;
-
   constructor(private http: HttpClient) {
     this.url = `${environment.urlService}selecciones/`;
   }
@@ -19,7 +18,7 @@ export class SeleccionService {
     return this.http.get<Seleccion[]>(`${this.url}listar`);
   }
 
-  public buscar(opcion: number, dato: string): Observable<Seleccion[]> {
+  public buscar(opcion:number, dato:string): Observable<Seleccion[]> {
     return this.http.get<Seleccion[]>(`${this.url}buscar/${opcion}/${dato}`);
   }
 
