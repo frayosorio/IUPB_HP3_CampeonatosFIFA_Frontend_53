@@ -1,46 +1,45 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ReferenciasMaterialModule } from '../../../shared/modules/referencias-material.module';
-import { NgFor } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Campeonato } from '../../../shared/entidades/campeonato';
 import { ColumnMode, DatatableComponent, NgxDatatableModule, SelectionType } from '@swimlane/ngx-datatable';
-import { Seleccion } from '../../../shared/entidades/seleccion';
-import { SeleccionService } from '../../../core/servicios/seleccion.service';
+import { CampeonatoService } from '../../../core/servicios/campeonato.service';
 import { MatDialog } from '@angular/material/dialog';
-import { SeleccionEditarComponent } from '../seleccion-editar/seleccion-editar.component';
+import { CampeonatoEditarComponent } from '../campeonato-editar/campeonato-editar.component';
 import { DecidirComponent } from '../../../shared/componentes/decidir/decidir.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-seleccion',
+  selector: 'app-campeonato',
   imports: [
     ReferenciasMaterialModule,
-    NgFor,
     FormsModule,
-    NgxDatatableModule,
+    NgxDatatableModule
   ],
-  templateUrl: './seleccion.component.html',
-  styleUrl: './seleccion.component.css'
+  templateUrl: './campeonato.component.html',
+  styleUrl: './campeonato.component.css'
 })
-export class SeleccionComponent implements OnInit {
+export class CampeonatoComponent implements OnInit {
   @ViewChild(DatatableComponent) tabla!: DatatableComponent;
 
   public readonly TAMANO: number = 10;
 
   public opcionBusqueda: number = -1;
-  public opcionesBusqueda: string[] = ["Nombre", "Entidad"];
+  public opcionesBusqueda: string[] = ["Nombre", "Año", "País Organizador"];
   public textoBusqueda: string = "";
 
-  public selecciones: Seleccion[] = [];
+  public campeonatos: Campeonato[] = [];
   public columnas = [
     { name: "Nombre", prop: "nombre" },
-    { name: "Entidad Regente", prop: "entidad" }
+    { name: "Año", prop: "año" },
+    { name: "País Organizador", prop: "paisOrganizador.nombre" }
   ];
   public modoColumna = ColumnMode;
   public tipoSeleccion = SelectionType;
-  public seleccionEscogida: Seleccion | undefined;
-  public indiceSeleccionEscogida: number = -1;
+  public campeonatoEscogido: Campeonato | undefined;
+  public indiceCampeonatoEscogido: number = -1;
 
 
-  constructor(private servicioSeleccion: SeleccionService,
+  constructor(private servicioCampeonato: CampeonatoService,
     private servicioDialogo: MatDialog,
   ) {
 
@@ -52,20 +51,20 @@ export class SeleccionComponent implements OnInit {
 
   escoger(event: any) {
     if (event.type == "click") {
-      this.seleccionEscogida = event.row;
-      this.indiceSeleccionEscogida = this.selecciones.findIndex(seleccion => seleccion == this.seleccionEscogida);
+      this.campeonatoEscogido = event.row;
+      this.indiceCampeonatoEscogido = this.campeonatos.findIndex(campeonato => campeonato == this.campeonatoEscogido);
     }
   }
 
   public listar(idBuscado: number) {
-    this.servicioSeleccion.listar().subscribe({
+    this.servicioCampeonato.listar().subscribe({
       next: response => {
-        this.selecciones = response;
+        this.campeonatos = response;
         if (idBuscado > 0) {
-          this.indiceSeleccionEscogida = this.selecciones.findIndex(seleccion => seleccion.id == idBuscado);
-          this.seleccionEscogida = this.selecciones[this.indiceSeleccionEscogida];
+          this.indiceCampeonatoEscogido = this.campeonatos.findIndex(campeonato => campeonato.id == idBuscado);
+          this.campeonatoEscogido = this.campeonatos[this.indiceCampeonatoEscogido];
           setTimeout(() => {
-            this.tabla.offset = Math.floor(this.indiceSeleccionEscogida / this.TAMANO);
+            this.tabla.offset = Math.floor(this.indiceCampeonatoEscogido / this.TAMANO);
           });
 
         }
@@ -77,22 +76,22 @@ export class SeleccionComponent implements OnInit {
   }
 
   public modificar() {
-    if (this.seleccionEscogida) {
-      const dialogo = this.servicioDialogo.open(SeleccionEditarComponent, {
+    if (this.campeonatoEscogido) {
+      const dialogo = this.servicioDialogo.open(CampeonatoEditarComponent, {
         width: "500px",
         height: "300px",
         data: {
-          encabezado: `Modicando la Selección ${this.seleccionEscogida.nombre}`,
-          seleccion: this.seleccionEscogida
+          encabezado: `Modicando el Campeonato ${this.campeonatoEscogido.nombre}`,
+          campeonato: this.campeonatoEscogido
         },
         disableClose: true,
       });
       dialogo.afterClosed().subscribe({
         next: datos => {
           if (datos) {
-            this.servicioSeleccion.modificar(datos.seleccion).subscribe({
+            this.servicioCampeonato.modificar(datos.campeonato).subscribe({
               next: response => {
-                this.selecciones[this.indiceSeleccionEscogida] = response;
+                this.campeonatos[this.indiceCampeonatoEscogido] = response;
               },
               error: error => {
                 window.alert(error.message);
@@ -106,31 +105,31 @@ export class SeleccionComponent implements OnInit {
       });
     }
     else {
-      window.alert("Debe escoger la Selección a modificar");
+      window.alert("Debe escoger el Campeonato a modificar");
     }
   }
 
   public verificarEliminar() {
-    if (this.seleccionEscogida) {
+    if (this.campeonatoEscogido) {
       const dialogo = this.servicioDialogo.open(DecidirComponent, {
         width: "300px",
         height: "200px",
         data: {
-          encabezado: `Está seguro de eliminar la Selección ${this.seleccionEscogida.nombre} ?`,
-          id: this.seleccionEscogida.id
+          encabezado: `Está seguro de eliminar el Campeonato ${this.campeonatoEscogido.nombre} ?`,
+          id: this.campeonatoEscogido.id
         },
         disableClose: true,
       });
       dialogo.afterClosed().subscribe({
         next: datos => {
           if (datos) {
-            this.servicioSeleccion.eliminar(datos.id).subscribe({
+            this.servicioCampeonato.eliminar(datos.id).subscribe({
               next: response => {
                 if (response) {
                   this.listar(-1);
-                  window.alert("Selección eliminada con éxito");
+                  window.alert("Campeonato eliminado con éxito");
                 } else {
-                  window.alert("No se pudo eliminar la Selección");
+                  window.alert("No se pudo eliminar el Campeonato");
                 }
               },
               error: error => {
@@ -145,16 +144,16 @@ export class SeleccionComponent implements OnInit {
       });
     }
     else {
-      window.alert("Debe escoger la Selección a modificar");
+      window.alert("Debe escoger el Campeonato a modificar");
     }
   }
 
   public buscar() {
     if (this.textoBusqueda.length > 0) {
-      this.servicioSeleccion.buscar(this.opcionBusqueda, this.textoBusqueda).subscribe(
+      this.servicioCampeonato.buscar(this.opcionBusqueda, this.textoBusqueda).subscribe(
         {
           next: response => {
-            this.selecciones = response;
+            this.campeonatos = response;
           },
           error: error => {
             window.alert(error.message);
@@ -168,15 +167,20 @@ export class SeleccionComponent implements OnInit {
   }
 
   public agregar() {
-    const dialogo = this.servicioDialogo.open(SeleccionEditarComponent, {
+    const dialogo = this.servicioDialogo.open(CampeonatoEditarComponent, {
       width: "500px",
       height: "300px",
       data: {
-        encabezado: "Agregando una nueva Selección",
-        seleccion: {
+        encabezado: "Agregando un nuevo Campeonato",
+        campeonato: {
           id: 0,
           nombre: "",
-          entidad: ""
+          paisOrganizador: {
+            id: 0, nombre: "", entidad: ""
+          },
+          idSeleccion: 0,
+          año: 0,
+          year: 0
         }
       },
       disableClose: true,
@@ -184,7 +188,8 @@ export class SeleccionComponent implements OnInit {
     dialogo.afterClosed().subscribe({
       next: datos => {
         if (datos) {
-          this.servicioSeleccion.agregar(datos.seleccion).subscribe({
+          datos.campeonato.año = datos.campeonato.year;
+          this.servicioCampeonato.agregar(datos.campeonato).subscribe({
             next: response => {
               this.listar(response.id);
             },
@@ -203,3 +208,4 @@ export class SeleccionComponent implements OnInit {
 
 
 }
+

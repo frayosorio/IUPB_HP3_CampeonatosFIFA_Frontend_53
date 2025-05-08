@@ -2,12 +2,12 @@
     <h2>{{datos.encabezado}}</h2>
     <mat-form-field appearance="fill" style="width:100%;">
         <mat-label>Nombre</mat-label>
-        <input matInput [(ngModel)]="datos.seleccion.nombre">
+        <input matInput [(ngModel)]="datos.campeonato.nombre">
     </mat-form-field>
     <br>
-    <mat-form-field appearance="fill" style="width:100%;">
-        <mat-label>Entidad</mat-label>
-        <input matInput [(ngModel)]="datos.seleccion.entidad">
+    <mat-form-field appearance="fill">
+        <mat-label>Año</mat-label>
+        <input matInput [(ngModel)]="datos.campeonato.year">
     </mat-form-field>
 </div>
 <div mat-dialog-actions>
