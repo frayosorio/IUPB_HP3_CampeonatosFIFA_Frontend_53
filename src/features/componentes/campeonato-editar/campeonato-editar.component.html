@@ -9,6 +9,14 @@
         <mat-label>Año</mat-label>
         <input matInput [(ngModel)]="datos.campeonato.year">
     </mat-form-field>
+    <mat-form-field appearance="fill" style="width:100%;">
+        <mat-label>País Organizador</mat-label>
+        <mat-select [(value)]="datos.campeonato.idSeleccion">
+            <mat-option *ngFor="let seleccion of datos.selecciones" [value]="seleccion.id">
+                {{ seleccion.nombre }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
 </div>
 <div mat-dialog-actions>
     <button mat-raised-button color="primary" [mat-dialog-close]="datos">Aceptar</button>

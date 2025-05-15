@@ -7,6 +7,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { CampeonatoEditarComponent } from '../campeonato-editar/campeonato-editar.component';
 import { DecidirComponent } from '../../../shared/componentes/decidir/decidir.component';
 import { FormsModule } from '@angular/forms';
+import { Seleccion } from '../../../shared/entidades/seleccion';
+import { SeleccionService } from '../../../core/servicios/seleccion.service';
 
 @Component({
   selector: 'app-campeonato',
@@ -27,6 +29,7 @@ export class CampeonatoComponent implements OnInit {
   public opcionesBusqueda: string[] = ["Nombre", "Año", "País Organizador"];
   public textoBusqueda: string = "";
 
+  public selecciones: Seleccion[] = [];
   public campeonatos: Campeonato[] = [];
   public columnas = [
     { name: "Nombre", prop: "nombre" },
@@ -40,6 +43,7 @@ export class CampeonatoComponent implements OnInit {
 
 
   constructor(private servicioCampeonato: CampeonatoService,
+    private servicioSeleccion: SeleccionService,
     private servicioDialogo: MatDialog,
   ) {
 
@@ -47,6 +51,7 @@ export class CampeonatoComponent implements OnInit {
 
   ngOnInit(): void {
     this.listar(-1);
+    this.listarSelecciones();
   }
 
   escoger(event: any) {
@@ -54,6 +59,17 @@ export class CampeonatoComponent implements OnInit {
       this.campeonatoEscogido = event.row;
       this.indiceCampeonatoEscogido = this.campeonatos.findIndex(campeonato => campeonato == this.campeonatoEscogido);
     }
+  }
+
+  public listarSelecciones() {
+    this.servicioSeleccion.listar().subscribe({
+      next: response => {
+        this.selecciones = response;
+      },
+      error: error => {
+        window.alert(error.message);
+      }
+    });
   }
 
   public listar(idBuscado: number) {
@@ -77,18 +93,21 @@ export class CampeonatoComponent implements OnInit {
 
   public modificar() {
     if (this.campeonatoEscogido) {
+      this.campeonatoEscogido.year = this.campeonatoEscogido.año;
       const dialogo = this.servicioDialogo.open(CampeonatoEditarComponent, {
         width: "500px",
-        height: "300px",
+        height: "400px",
         data: {
           encabezado: `Modicando el Campeonato ${this.campeonatoEscogido.nombre}`,
-          campeonato: this.campeonatoEscogido
+          campeonato: { ...this.campeonatoEscogido },
+          selecciones: this.selecciones
         },
         disableClose: true,
       });
       dialogo.afterClosed().subscribe({
         next: datos => {
           if (datos) {
+            datos.campeonato.año = datos.campeonato.year;
             this.servicioCampeonato.modificar(datos.campeonato).subscribe({
               next: response => {
                 this.campeonatos[this.indiceCampeonatoEscogido] = response;
@@ -169,7 +188,7 @@ export class CampeonatoComponent implements OnInit {
   public agregar() {
     const dialogo = this.servicioDialogo.open(CampeonatoEditarComponent, {
       width: "500px",
-      height: "300px",
+      height: "400px",
       data: {
         encabezado: "Agregando un nuevo Campeonato",
         campeonato: {
@@ -181,7 +200,8 @@ export class CampeonatoComponent implements OnInit {
           idSeleccion: 0,
           año: 0,
           year: 0
-        }
+        },
+        selecciones: this.selecciones
       },
       disableClose: true,
     });
