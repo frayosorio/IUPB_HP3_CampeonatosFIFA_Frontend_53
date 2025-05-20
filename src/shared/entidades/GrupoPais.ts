@@ -1,5 +1,5 @@
 import { Grupo } from "./Grupo";
-import { Seleccion } from "./Seleccion";
+import { Seleccion } from "./seleccion";
 
 export interface GrupoPais {
     idGrupo: number;

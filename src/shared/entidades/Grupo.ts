@@ -1,4 +1,4 @@
-import { Campeonato } from "./Campeonato";
+import { Campeonato } from "./campeonato";
 
 export interface Grupo {
     id: number;

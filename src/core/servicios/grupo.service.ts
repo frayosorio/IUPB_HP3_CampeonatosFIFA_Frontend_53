@@ -3,8 +3,8 @@ import { Grupo } from '../../shared/entidades/Grupo';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { TablaPosicionesDto } from '../../shared/DTOs/tabla-posiciones.dto';
 import { GrupoPais } from '../../shared/entidades/GrupoPais';
+import { TablaPosicionesDTO } from '../../shared/dto/tablaposiciones.dto';
 
 @Injectable({
   providedIn: 'root'
@@ -61,8 +61,8 @@ export class GrupoService {
 
   // ***** Tabla de Posiciones *****
 
-  public listarTablaPosiciones(idGrupo: number): Observable<TablaPosicionesDto[]> {
-    return this.http.get<TablaPosicionesDto[]>(`${this.url}posiciones/${idGrupo}`);
+  public listarTablaPosiciones(idGrupo: number): Observable<TablaPosicionesDTO[]> {
+    return this.http.get<TablaPosicionesDTO[]>(`${this.url}posiciones/${idGrupo}`);
   }
 
 }
