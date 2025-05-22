@@ -1,4 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'https://fonts.googleapis.com/icon?family=Material+Icons';
+
 @import '../node_modules/@swimlane/ngx-datatable/themes/material.css';
 @import '../node_modules/@swimlane/ngx-datatable/themes/dark.css';
 @import '../node_modules/@swimlane/ngx-datatable/themes/bootstrap.css';
